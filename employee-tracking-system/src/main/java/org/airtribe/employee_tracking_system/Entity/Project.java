@@ -3,14 +3,21 @@ package org.airtribe.employee_tracking_system.Entity;
 import java.util.List;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
 
+@Setter
+@Getter
 @Entity
 public class Project {
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@NonNull
 	private String name;
 
+	@NonNull
 	private Double budget;
 
 	@ManyToMany(mappedBy = "projects")
@@ -32,44 +39,5 @@ public class Project {
 		this.department = department;
 	}
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public Double getBudget() {
-		return budget;
-	}
-
-	public void setBudget(Double budget) {
-		this.budget = budget;
-	}
-
-	public List<Employee> getEmployees() {
-		return employees;
-	}
-
-	public void setEmployees(List<Employee> employees) {
-		this.employees = employees;
-	}
-
-	public Department getDepartment() {
-		return department;
-	}
-
-	public void setDepartment(Department department) {
-		this.department = department;
-	}
 }
 
