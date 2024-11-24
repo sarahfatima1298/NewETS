@@ -11,7 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -20,6 +22,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableAspectJAutoProxy(proxyTargetClass = true)
 public class WebSecurityConfig {
 
 	private final CustomOAuth2UserService customOAuth2UserService;
@@ -33,9 +37,8 @@ public class WebSecurityConfig {
 				.authorizeHttpRequests((authz) -> authz
 						.requestMatchers("/hello").permitAll()
 						.requestMatchers("/api/hello").hasRole("ADMIN")
-						.requestMatchers("/abcde").hasRole("MANAGER")
-						.requestMatchers("/employees/**").hasRole("ADMIN")
 						.requestMatchers("/departments/**", "/projects/**").hasAnyRole("ADMIN", "MANAGER")
+						.requestMatchers("/employees/**").hasAnyRole("ADMIN", "MANAGER", "EMPLOYEE")
 						.anyRequest().authenticated()
 				)
 				.oauth2Login(oauth2 -> oauth2
