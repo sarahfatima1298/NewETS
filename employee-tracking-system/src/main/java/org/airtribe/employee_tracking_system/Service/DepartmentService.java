@@ -1,6 +1,8 @@
 package org.airtribe.employee_tracking_system.Service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.airtribe.employee_tracking_system.Entity.Department;
@@ -40,10 +42,6 @@ public class DepartmentService {
 
 	public List<Project> getProjectsByDepartment(Long departmentId) {
 		Department department = getById(departmentId);
-		return department.getEmployees().stream()
-				.flatMap(employee -> employee.getProjects().stream())
-				.distinct()
-				.collect(Collectors.toList());
+		return department.getProjects();
 	}
-
 }

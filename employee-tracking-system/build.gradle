@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.5'
 	id 'io.spring.dependency-management' version '1.1.6'
+	id 'jacoco'
 }
 
 group = 'org.airtribe'
@@ -13,6 +14,18 @@ java {
 	}
 }
 
+jacoco {
+	toolVersion = "0.8.10" // Use the latest stable version
+}
+
+tasks.jacocoTestReport {
+	dependsOn test // Ensure tests run before generating the report
+	reports {
+		xml.required = true
+		csv.required = false
+		html.required = true // Enable HTML reports
+	}
+}
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
@@ -35,6 +48,9 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	testImplementation 'org.mockito:mockito-core:5.2.0'
+	testImplementation 'org.mockito:mockito-junit-jupiter:5.2.0'
 }
 
 tasks.named('test') {

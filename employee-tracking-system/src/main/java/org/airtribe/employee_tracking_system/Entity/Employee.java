@@ -48,7 +48,7 @@ public class Employee {
 	public Employee() {
 	}
 
-	public Employee(Long id, String lastName, String firstName, String email, Role role, Department department, List<Project> projects) {
+	public Employee(Long id, String firstName, String lastName, String email, Role role, Department department, List<Project> projects) {
 		this.id = id;
 		this.lastName = lastName;
 		this.firstName = firstName;
@@ -62,5 +62,8 @@ public class Employee {
 		return role != null ? List.of(role.name()) : List.of();
 	}
 
+	public String getName() {
+		return null;
+	}
 }
 
