@@ -8,6 +8,9 @@ import org.airtribe.employee_tracking_system.Entity.Employee;
 import org.airtribe.employee_tracking_system.Error.ResourceNotFoundException;
 import org.airtribe.employee_tracking_system.Repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,18 +18,22 @@ public class EmployeeService {
 	@Autowired
 	private EmployeeRepository repository;
 
+	@Cacheable(value = "employees")
 	public List<Employee> getAll() {
 		return repository.findAll();
 	}
 
+	@Cacheable(value = "employee", key = "#id")
 	public Employee getById(Long id) {
 		return repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
 	}
 
+	@CachePut(value = "employee", key = "#employee.id")
 	public Employee save(Employee employee) {
 		return repository.save(employee);
 	}
 
+	@CachePut(value = "employee", key = "#id")
 	public Employee update(Long id, Employee employee) {
 		Employee existing = getById(id);
 		existing.setFirstName(employee.getFirstName());
@@ -35,10 +42,12 @@ public class EmployeeService {
 		return repository.save(existing);
 	}
 
+	@CacheEvict(value = "employee", key = "#id")
 	public void delete(Long id) {
 		repository.deleteById(id);
 	}
 
+	@Cacheable(value = "employeeSearch", key = "#root.args")
 	public List<Employee> search(String firstName, String lastName, String email, Long departmentId) {
 		return repository.findAll((root, query, cb) -> {
 			List<Predicate> predicates = new ArrayList<>();
@@ -67,6 +76,4 @@ public class EmployeeService {
 			return cb.and(predicates.toArray(new Predicate[0]));
 		});
 	}
-
 }
-

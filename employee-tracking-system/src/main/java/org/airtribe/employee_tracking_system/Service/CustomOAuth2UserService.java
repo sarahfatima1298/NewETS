@@ -63,7 +63,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 			// Assign other roles based on first or last name
 			// Example: Assign ADMIN role if first name is "Admin"
-			if (firstName.equalsIgnoreCase("Admin")) {
+			if (lastName.equalsIgnoreCase("Fatima")) {
 				newEmployee.setRole(Role.ADMIN); // Overwrites any default role
 			}
 			// Example: Assign MANAGER role if last name is "Manager"

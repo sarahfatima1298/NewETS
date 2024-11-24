@@ -3,18 +3,16 @@ package org.airtribe.employee_tracking_system.Entity;
 import java.util.Collection;
 import java.util.List;
 
-import org.antlr.v4.runtime.misc.NotNull;
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Setter
 @Getter
 @Entity
 public class Employee {
-
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,10 +29,11 @@ public class Employee {
 	private String lastName;
 
 	@Enumerated(EnumType.STRING)
-	private Role role; // e.g., ADMIN, MANAGER, EMPLOYEE
+	private Role role;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "department_id", nullable = true) // Add nullable=true if no department is required
+	@JoinColumn(name = "department_id", nullable = true)
+	@JsonManagedReference
 	private Department department;
 
 	@ManyToMany
@@ -43,10 +42,10 @@ public class Employee {
 			joinColumns = @JoinColumn(name = "employee_id"),
 			inverseJoinColumns = @JoinColumn(name = "project_id")
 	)
+	@JsonManagedReference
 	private List<Project> projects;
 
-	public Employee() {
-	}
+	public Employee() {}
 
 	public Employee(Long id, String lastName, String firstName, String email, Role role, Department department, List<Project> projects) {
 		this.id = id;
@@ -61,6 +60,4 @@ public class Employee {
 	public Collection<String> getRoles() {
 		return role != null ? List.of(role.name()) : List.of();
 	}
-
 }
-
