@@ -37,7 +37,19 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		String lastName = (String) attributes.getOrDefault("family_name", "Unknown");
 
 		String tokenValue = userRequest.getAccessToken().getTokenValue();
-		System.out.println("JWT Token: {} " + tokenValue);
+		System.out.println("JWT Token: " + tokenValue);
+
+		// Extract ID Token from the OAuth2UserRequest (if available)
+		String idToken = userRequest.getAdditionalParameters().get("id_token") != null
+				? userRequest.getAdditionalParameters().get("id_token").toString()
+				: null;
+
+		if (idToken != null) {
+			System.out.println("Bearer " + idToken);
+			// Use the ID token if further validation or claims extraction is required
+		} else {
+			System.out.println("ID Token not available in the response.");
+		}
 
 		// Check if the employee exists in the database
 		Employee employee = employeeRepository.findByEmail(email).orElseGet(() -> {
