@@ -3,6 +3,7 @@ package org.airtribe.employee_tracking_system.Controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -40,7 +41,8 @@ class EmployeeControllerTest {
 		Employee employee = new Employee(1L, "John", "Doe", "john.doe@example.com", Role.EMPLOYEE, null, null);
 		Mockito.when(service.getAll()).thenReturn(Arrays.asList(employee));
 
-		mockMvc.perform(get("/employees"))
+		mockMvc.perform(get("/employees")
+						.with(oauth2Login().authorities(() -> "ROLE_ADMIN")))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$[0].id").value(1))
 				.andExpect(jsonPath("$[0].firstName").value("John"));
@@ -62,6 +64,7 @@ class EmployeeControllerTest {
 				""";
 
 		mockMvc.perform(post("/employees")
+						.with(oauth2Login().authorities(() -> "ROLE_ADMIN"))
 						.with(csrf())
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(jsonPayload))
@@ -77,6 +80,7 @@ class EmployeeControllerTest {
 		Mockito.when(service.getById(1L)).thenReturn(employee);
 
 		mockMvc.perform(get("/employees/1")
+						.with(oauth2Login().authorities(() -> "ROLE_ADMIN"))
 						.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.id").value(1))
@@ -90,6 +94,7 @@ class EmployeeControllerTest {
 		Mockito.when(service.update(eq(1L), any(Employee.class))).thenReturn(employee);
 
 		mockMvc.perform(put("/employees/1")
+						.with(oauth2Login().authorities(() -> "ROLE_ADMIN"))
 						.with(csrf())
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("{\"firstName\":\"Updated John\",\"lastName\":\"Doe\",\"email\":\"john.doe@example.com\",\"departmentId\":1001}"))
@@ -104,6 +109,7 @@ class EmployeeControllerTest {
 		Mockito.doNothing().when(service).delete(1L);
 
 		mockMvc.perform(delete("/employees/1")
+						.with(oauth2Login().authorities(() -> "ROLE_ADMIN"))
 						.with(csrf())
 						.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk());
@@ -119,6 +125,7 @@ class EmployeeControllerTest {
 		Mockito.when(service.search("John", null, null, null)).thenReturn(employees);
 
 		mockMvc.perform(get("/employees/search?firstName=John")
+						.with(oauth2Login().authorities(() -> "ROLE_ADMIN"))
 						.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.size()").value(2))

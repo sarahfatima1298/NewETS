@@ -3,6 +3,7 @@ package org.airtribe.employee_tracking_system.Controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -38,7 +39,8 @@ class ProjectControllerTest {
 		Project project = new Project(1L, null, 10000.0, "Project A", null);
 		Mockito.when(service.getAll()).thenReturn(Arrays.asList(project));
 
-		mockMvc.perform(get("/projects"))
+		mockMvc.perform(get("/projects")
+						.with(oauth2Login().authorities(() -> "ROLE_ADMIN")))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$[0].id").value(1))
 				.andExpect(jsonPath("$[0].name").value("Project A"));
@@ -58,6 +60,7 @@ class ProjectControllerTest {
 				""";
 
 		mockMvc.perform(post("/projects")
+						.with(oauth2Login().authorities(() -> "ROLE_ADMIN"))
 						.with(csrf())
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(jsonPayload))
@@ -73,6 +76,7 @@ class ProjectControllerTest {
 		Mockito.when(service.getById(1L)).thenReturn(project);
 
 		mockMvc.perform(get("/projects/1")
+						.with(oauth2Login().authorities(() -> "ROLE_ADMIN"))
 						.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.id").value(1))
@@ -86,6 +90,7 @@ class ProjectControllerTest {
 		Mockito.when(service.update(eq(1L), any(Project.class))).thenReturn(project);
 
 		mockMvc.perform(put("/projects/1")
+						.with(oauth2Login().authorities(() -> "ROLE_ADMIN"))
 						.with(csrf())
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("{\"name\":\"Updated Project Alpha\",\"description\":\"Updated description for Project Alpha\"}"))
@@ -100,6 +105,7 @@ class ProjectControllerTest {
 		Mockito.doNothing().when(service).delete(1L);
 
 		mockMvc.perform(delete("/projects/1")
+						.with(oauth2Login().authorities(() -> "ROLE_ADMIN"))
 						.with(csrf())
 						.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk());

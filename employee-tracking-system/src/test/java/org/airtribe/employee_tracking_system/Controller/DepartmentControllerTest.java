@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -19,7 +20,6 @@ import org.airtribe.employee_tracking_system.Entity.Department;
 import org.airtribe.employee_tracking_system.Entity.Project;
 import org.airtribe.employee_tracking_system.Service.DepartmentService;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -38,11 +38,14 @@ class DepartmentControllerTest {
 
 	@WithMockUser(roles = {"ADMIN"})
 	@Test
-	void testGetAllDepartments() throws Exception {
+	void testGetAllDepartmentsWithAdminRole() throws Exception {
+		// Mock the service response
 		Department department = new Department(1L, null, 50000.0, "HR", null);
 		when(service.getAll()).thenReturn(Arrays.asList(department));
 
-		mockMvc.perform(get("/departments"))
+		// Simulate OAuth2 login with admin role
+		mockMvc.perform(get("/departments")
+						.with(oauth2Login().authorities(() -> "ROLE_ADMIN")))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$[0].id").value(1))
 				.andExpect(jsonPath("$[0].name").value("HR"));
@@ -54,7 +57,8 @@ class DepartmentControllerTest {
 		Department department = new Department(1L, null, 50000.0, "HR", null);
 		when(service.getById(1L)).thenReturn(department);
 
-		mockMvc.perform(get("/departments/1"))
+		mockMvc.perform(get("/departments/1")
+						.with(oauth2Login().authorities(() -> "ROLE_ADMIN")))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.name").value("HR"));
 	}
@@ -72,7 +76,8 @@ class DepartmentControllerTest {
 				}
 				""";
 
-		mockMvc.perform(post("http://localhost:3000/departments")
+		mockMvc.perform(post("http://localhost:8088/departments")
+						.with(oauth2Login().authorities(() -> "ROLE_ADMIN"))
 						.with(csrf())
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(jsonPayload))
@@ -88,6 +93,7 @@ class DepartmentControllerTest {
 		when(service.update(eq(1L), any(Department.class))).thenReturn(updatedDepartment);
 
 		mockMvc.perform(put("/departments/1")
+						.with(oauth2Login().authorities(() -> "ROLE_ADMIN"))
 						.with(csrf()) // Required for security testing with CSRF protection enabled
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("{\"name\":\"Updated Name\"}"))
@@ -102,6 +108,7 @@ class DepartmentControllerTest {
 		doNothing().when(service).delete(1L);
 
 		mockMvc.perform(delete("/departments/1")
+						.with(oauth2Login().authorities(() -> "ROLE_ADMIN"))
 						.with(csrf()))
 
 				.andExpect(status().isOk());
@@ -113,7 +120,8 @@ class DepartmentControllerTest {
 		List<Project> projects = Arrays.asList(new Project(1L, null, 20000.0, "Project B", null));
 		when(service.getProjectsByDepartment(1L)).thenReturn(projects);
 
-		mockMvc.perform(get("/departments/1/projects"))
+		mockMvc.perform(get("/departments/1/projects")
+						.with(oauth2Login().authorities(() -> "ROLE_ADMIN")))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.length()").value(1))
 				.andExpect(jsonPath("$[0].name").value("Project B"));
