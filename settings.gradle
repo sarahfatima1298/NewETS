@@ -1,0 +1,3 @@
+rootProject.name = 'Employee-Tracking-System'
+
+include 'employee-tracking-system'
